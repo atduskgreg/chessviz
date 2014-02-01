@@ -1,0 +1,125 @@
+<html>
+	<head>
+		<title>chessviz</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>
+
+		var rootImageURL = "/images";
+
+		function displayPosition( fen_position ){
+			console.log(fen_position);
+			rows = fen_position.split("/");
+			for(var row = 0; row < rows.length; row++){
+				if(rows[row] == "8"){ // empty row
+					continue;
+				} else {
+					cols = rows[row].split("");
+
+					for(var col = 0; col < cols.length; col++){
+						cellId = col + "_" + row;
+
+						var pieceColor = "black";
+						if(cols[col] == cols[col].toUpperCase()){
+							pieceColor = "white";
+						}
+
+						imageURL = rootImageURL + "/" + pieceColor + "/" + cols[col] + ".png";
+						$("#" + cellId).html("<img src='" + imageURL + "'/>");
+					}
+				}
+			}
+		}
+
+		function ready(){
+			black = false;
+
+			for(var row = 0; row < 8; row++){
+				$("#board table").append("<tr></tr>");
+				for(var col = 0; col < 8; col++){
+					var c;
+					if(black){
+						c = "black";
+					} else {
+						c = "white";
+					}
+					$("#board table tr:last").append("<td class='"+c+"' id='"+col+"_"+row+"'></td>");
+					black = !black;
+
+					if(col == 7){
+						black = !black;
+					}
+
+				}
+
+			}
+
+			url = "http://localhost:4567/position";
+
+			$.ajax({
+			  url: url,
+			  dataType: "jsonp",
+			  success: function (data) {
+			  	console.log(data);
+			  	console.log(data.board );
+			  	console.log(data.error);
+			  	console.log(data.board == undefined);
+				if(data.board == undefined){
+					$("#log").append(data.error);
+
+				} else {
+
+					displayPosition(data.board.fen);
+					$("#log").append("board loaded from fen:\n" + data.board.fen);
+
+
+				}
+			  }
+			});
+
+		
+
+		}
+		document.addEventListener("DOMContentLoaded", ready, false);
+
+		</script>
+		<style>
+			#board table td {
+				width: 65px;
+				height:65px;
+			}
+
+			table, th, td {
+				border-collapse:collapse;
+				border: 1px solid black;
+			}
+			.black {
+				background-color: #000;
+			}
+
+			#board img {
+				width: 62px;
+				height: 62px;
+			}
+
+			#board {
+				float: left;
+			}
+
+			#log {
+				float: left;
+				font-family: courier;
+				white-space: pre;
+				margin-left: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="board">
+			<table>
+			</table>
+
+		</div>
+		<br style="clear;both"/>
+			<p id="log"></p>
+	</body>
+</html>
