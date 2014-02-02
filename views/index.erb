@@ -17,6 +17,9 @@
 					continue;
 				} else {
 					cols = rows[row].split("");
+					if(cols.length != 8){
+						logError("row " + (row+1) + " is the wrong length: " + cols.length);
+					}
 
 					for(var col = 0; col < cols.length; col++){
 						if(cols[col] != "."){
@@ -34,8 +37,17 @@
 				}
 			}
 
-			$("#log").append("board loaded from fen:\n" + fen_position);
+			$("#fen-input textarea").val(fen_position);
+			logMsg("board loaded from fen:\n" + fen_position);
 
+		}
+
+		function logError(err){
+			$("#log").append("<span class='logmsg error'>"+err+"</span>");
+		}
+
+		function logMsg(msg){
+			$("#log").appen("<span class='logmsg'>" +msg+"</span>");
 		}
 
 		function ready(){
@@ -63,7 +75,6 @@
 
 			<% if @fenstring %>
 				displayPosition("<%= @fenstring %>");
-
 			<% else %>
 
 			url = "/position";
@@ -89,16 +100,6 @@
 			});
 
 			<% end %>
-
-
-			$("#fen-input").submit(function(){
-				console.log($("#fen-input textarea").val());
-				displayPosition($("#fen-input textarea").val());
-
-				return false;
-			});
-
-
 
 		}
 		document.addEventListener("DOMContentLoaded", ready, false);
@@ -140,6 +141,13 @@
 				height: 50px;
 			}
 
+			.error {
+				color: red;
+			}
+			.logmsg {
+				clear:both;
+			}
+
 		</style>
 	</head>
 	<body>
@@ -149,9 +157,9 @@
 
 		</div>
 		<br style="clear;both"/>
-		<form id="fen-input">
+		<form id="fen-input" method="get" action="/">
 			<p><label>FEN input</label></p>
-			<textarea></textarea>
+			<textarea name="f"></textarea>
 			<p><input type="submit" value="display" /></p>
 
 		</form>
