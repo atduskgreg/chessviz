@@ -1,13 +1,16 @@
 <html>
 	<head>
 		<title>chessviz</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+				<script src="/jquery-1.9.1.min.js"></script>
+
+		<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> -->
 		<script>
 
 		var rootImageURL = "/images";
 
 		function displayPosition( fen_position ){
 			console.log(fen_position);
+			$(".pieceImg").hide();
 			rows = fen_position.split("/");
 			for(var row = 0; row < rows.length; row++){
 				if(rows[row] == "8"){ // empty row
@@ -16,18 +19,23 @@
 					cols = rows[row].split("");
 
 					for(var col = 0; col < cols.length; col++){
-						cellId = col + "_" + row;
-
-						var pieceColor = "black";
-						if(cols[col] == cols[col].toUpperCase()){
-							pieceColor = "white";
+						if(cols[col] != "."){
+							cellId = col + "_" + row;
+	
+							var pieceColor = "black";
+							if(cols[col] == cols[col].toUpperCase()){
+								pieceColor = "white";
+							}
+	
+							imageURL = rootImageURL + "/" + pieceColor + "/" + cols[col] + ".png";
+							$("#" + cellId).html("<img class='pieceImg' src='" + imageURL + "'/>");
 						}
-
-						imageURL = rootImageURL + "/" + pieceColor + "/" + cols[col] + ".png";
-						$("#" + cellId).html("<img src='" + imageURL + "'/>");
 					}
 				}
 			}
+
+			$("#log").append("board loaded from fen:\n" + fen_position);
+
 		}
 
 		function ready(){
@@ -53,7 +61,12 @@
 
 			}
 
-			url = "http://localhost:4567/position";
+			<% if @fenstring %>
+				displayPosition("<%= @fenstring %>");
+
+			<% else %>
+
+			url = "/position";
 
 			$.ajax({
 			  url: url,
@@ -69,14 +82,23 @@
 				} else {
 
 					displayPosition(data.board.fen);
-					$("#log").append("board loaded from fen:\n" + data.board.fen);
 
 
 				}
 			  }
 			});
 
-		
+			<% end %>
+
+
+			$("#fen-input").submit(function(){
+				console.log($("#fen-input textarea").val());
+				displayPosition($("#fen-input textarea").val());
+
+				return false;
+			});
+
+
 
 		}
 		document.addEventListener("DOMContentLoaded", ready, false);
@@ -97,20 +119,27 @@
 			}
 
 			#board img {
-				width: 62px;
-				height: 62px;
+				width: 60px;
+				height: 60px;
 			}
 
 			#board {
 				float: left;
+				margin-right: 20px;
+
 			}
 
 			#log {
 				float: left;
 				font-family: courier;
 				white-space: pre;
-				margin-left: 20px;
 			}
+
+			#fen-input textarea {
+				width: 400px;
+				height: 50px;
+			}
+
 		</style>
 	</head>
 	<body>
@@ -120,6 +149,13 @@
 
 		</div>
 		<br style="clear;both"/>
-			<p id="log"></p>
+		<form id="fen-input">
+			<p><label>FEN input</label></p>
+			<textarea></textarea>
+			<p><input type="submit" value="display" /></p>
+
+		</form>
+
+		<p id="log"></p>
 	</body>
 </html>
