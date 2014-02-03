@@ -11,27 +11,36 @@
 		function displayPosition( fen_position ){
 			console.log(fen_position);
 			$(".pieceImg").hide();
-			rows = fen_position.split("/");
+			parts = fen_position.split(" ");
+			updateTurn(parts[1]);
+
+			rows = parts[0].split("/");
+			
 			for(var row = 0; row < rows.length; row++){
 				if(rows[row] == "8"){ // empty row
 					continue;
 				} else {
-					cols = rows[row].split("");
-					if(cols.length != 8){
-						logError("row " + (row+1) + " is the wrong length: " + cols.length);
-					}
+					chars = rows[row].split("");
+					// if(cols.length != 8){
+					// 	logError("row " + (row+1) + " is the wrong length: " + cols.length);
+					// }
 
-					for(var col = 0; col < cols.length; col++){
-						if(cols[col] != "."){
-							cellId = col + "_" + row;
+					var colNum = 0;
+					for(var c = 0; c < chars.length; c++){
+						if(chars[c].match(/\d/)){
+							numSkips = parseInt(chars[c]);
+							colNum += numSkips;
+						} else {
+							cellId = colNum + "_" + row;
 	
 							var pieceColor = "black";
-							if(cols[col] == cols[col].toUpperCase()){
+							if(chars[c] == chars[c].toUpperCase()){
 								pieceColor = "white";
 							}
 	
-							imageURL = rootImageURL + "/" + pieceColor + "/" + cols[col] + ".png";
+							imageURL = rootImageURL + "/" + pieceColor + "/" + chars[c] + ".png";
 							$("#" + cellId).html("<img class='pieceImg' src='" + imageURL + "'/>");
+							colNum++;
 						}
 					}
 				}
@@ -42,12 +51,21 @@
 
 		}
 
+		function updateTurn(str){
+			var turn = "white";
+			if(str == "b"){
+				turn = "black";
+			}
+
+			$("#turn").html(turn);
+		}
+ 
 		function logError(err){
 			$("#log").append("<span class='logmsg error'>"+err+"</span>");
 		}
 
 		function logMsg(msg){
-			$("#log").appen("<span class='logmsg'>" +msg+"</span>");
+			$("#log").append("<span class='logmsg'>" +msg+"</span>");
 		}
 
 		function ready(){
@@ -101,6 +119,29 @@
 
 			<% end %>
 
+
+			letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+			for(var i = 0; i < 8; i++){
+				$("#colSelect").append("<option value='"+letters[i]+"'>"+letters[i]+"</option>");
+				$("#rowSelect").append("<option value='"+i+"'>"+(i+1)+"</option>");
+			}
+
+			$("#highlight").submit(function(){
+				$("#board td").css("outline", "none");
+
+				col = letters.indexOf($("#colSelect").val());
+				row = $("#rowSelect").val();
+				console.log(col+"_"+row);
+				$("#"+col+"_"+row).css("outline", "4px solid red");
+				$("#clear-highlight").show();
+				return false;
+			});
+
+			$("#clear-highlight").click(function(){
+				$("#board td").css("outline", "none");
+				$(this).hide();
+				return false;
+			});
 		}
 		document.addEventListener("DOMContentLoaded", ready, false);
 
@@ -147,10 +188,21 @@
 			.logmsg {
 				clear:both;
 			}
+			#turn {
+				font-weight: bold;
+			}
+			#turnDisplay{
+				font-size:24px;
+			}
+
+			body {
+				min-width: 1000px;
+			}
 
 		</style>
 	</head>
 	<body>
+		<p id="turnDisplay"><span id="turn"></span>'s turn</p>
 		<div id="board">
 			<table>
 			</table>
@@ -161,7 +213,14 @@
 			<p><label>FEN input</label></p>
 			<textarea name="f"></textarea>
 			<p><input type="submit" value="display" /></p>
-
+		</form>
+		<form id="highlight">
+			<p>
+			<select id="colSelect"></select>
+			<select id="rowSelect"></select>
+			<input type="submit" value="highlight">
+			<a href="#" style="display:none" id="clear-highlight">[x]</a>
+			</p>
 		</form>
 
 		<p id="log"></p>
