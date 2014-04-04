@@ -2,10 +2,7 @@ require 'uci'
 require 'sinatra'
 require 'json'
 
-UCI = Uci.new( :engine_path => '/usr/local/bin/stockfish',
-
-				:
- )
+UCI = Uci.new( :engine_path => '/usr/local/bin/stockfish')
 
 get "/" do
 	@fenstring = params[:f]

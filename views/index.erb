@@ -31,7 +31,7 @@
 							numSkips = parseInt(chars[c]);
 							colNum += numSkips;
 						} else {
-							cellId = colNum + "_" + row;
+							cellId = colNum + "_" + (7-row);
 	
 							var pieceColor = "black";
 							if(chars[c] == chars[c].toUpperCase()){
@@ -71,8 +71,20 @@
 		function ready(){
 			black = false;
 
-			for(var row = 0; row < 8; row++){
-				$("#board table").append("<tr></tr>");
+			$("#board table").append("<tr id='headerRow'></tr>");
+			for(var i = 0; i < 9; i++){
+				var c = "labelCell";
+				var l = String.fromCharCode(i+96);
+				if(i == 0){
+					c = "noLabel";
+					l = "";
+				}
+				$("#board table tr:last").append("<td class='"+c+"'>"+l+"</td>");
+			}
+
+			for(var row = 7; row >= 0; row--){
+				$("#board table").append("<tr class='bodyRow'></tr>");
+				$("#board table tr:last").append("<td class='labelCell'>"+(row+1)+"</td>");
 				for(var col = 0; col < 8; col++){
 					var c;
 					if(black){
@@ -154,11 +166,19 @@
 
 			table, th, td {
 				border-collapse:collapse;
-				border: 1px solid black;
+				/*border: 1px solid black;*/
+				/*border-left: 1px solid black;*/
+								/*border-top: 1px solid black;*/
+
 			}
 			.black {
 				background-color: #000;
 			}
+
+			.white {
+				background-color: #eee;
+			}
+
 
 			#board img {
 				width: 60px;
@@ -197,6 +217,18 @@
 
 			body {
 				min-width: 1000px;
+			}
+
+			#headerRow {
+				text-align:center;
+			}
+
+			.bodyRow .labelCell{
+				text-align:center;
+			}
+
+			.labelCell {
+				font-weight: bold;
 			}
 
 		</style>
